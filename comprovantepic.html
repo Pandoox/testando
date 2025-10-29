@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Comprovante CE</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      background-color: #111827;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background-color: #1F2937;
+      padding: 30px;
+      border-radius: 8px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #00ffcc;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background-color: #374151;
+      color: #fff;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #00ffcc;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #00e6b8;
+    }
+
+    .inline-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+  </style>
+</head>
+<body onload="gerarIdentificador(); gerarCodigoBarras();">
+
+  <div class="container">
+    <h1>Gerar Comprovante - Ceará</h1>
+    <form id="formulario">
+
+        <label>Identificador automático:</label>
+<input type="text" name="identificador" id="identificador" readonly>
+
+
+      <label>Nome:</label>
+      <input type="text" name="nome" value="RONALDO FENOMENO DE SOUZA LIRA" required>
+
+      <label>Você pagou a:</label>
+      <input type="text" name="beneficiario" value="Efi S.A. - Instituição de Pagamento" required>
+
+      <label>Total pago:</label>
+      <input type="text" name="total_pago" value="69,90" required>
+
+      <label>Valor original:</label>
+      <input type="text" name="valor_original" value="89,90" required>
+
+      <label>Desconto:</label>
+      <input type="text" name="desconto" value="00,00" required>
+
+      <label>Código de barras:</label>
+      <div class="inline-group">
+        <input type="text" name="codigo_barras" id="codigo_barras" readonly>
+        <button type="button" onclick="gerarCodigoBarras()">Gerar</button>
+      </div>
+
+      <label>Beneficiário:</label>
+      <input type="text" name="nome_beneficiario" value="MERCADO PAGO" required>
+
+      <label>CPF/CNPJ do beneficiário:</label>
+      <input type="text" name="cpf_beneficiario" value="10.755.388/0001-44" required>
+
+      <label>Pagador:</label>
+      <input type="text" name="pagador" value="RONALDO FENOMENO DE SOUZA LIRA" required>
+
+      <label>CPF/CNPJ do pagador:</label>
+      <input type="text" name="cpf_pagador" value="123.456.789-11" required>
+
+      <label>Código de autenticação:</label>
+      <div class="inline-group">
+        <input type="text" name="codigo_autenticacao" id="codigo_autenticacao" readonly>
+        <button type="button" onclick="gerarAutenticacao()">Gerar</button>
+      </div>
+
+      <label>Banco:</label>
+      <input type="text" name="banco" value="260 - NU PAGAMENTOS S.A." required>
+
+      <label>Vencimento do boleto:</label>
+      <input type="date" name="vencimento_boleto" value="28/10/2025" required>
+
+      <label>Pagador final:</label>
+      <input type="text" name="pagador_final" value="RONALDO FENOMENO DE SOUZA LIRA" required>
+
+      <label>Data do pagamento e horário:</label>
+      <input type="text" name="data_pagamento" value="28/10/2025 19:36:03" required>
+
+      <button type="button" onclick="gerarPDF()">Visualizar PDF</button>
+    </form>
+  </div>
+
+  <script>
+
+    function gerarIdentificador() {
+  document.getElementById("identificador").value = "#91994790580";
+}
+
+
+    function gerarNumero(campoId, tamanho) {
+      const numero = Math.floor(Math.random() * Math.pow(10, tamanho)).toString().padStart(tamanho, '0');
+      document.getElementById(campoId).value = numero;
+    }
+
+function gerarCodigoBarras() {
+  const bancoMoeda = "3649"; // código do banco + moeda
+  const fatorVencimento = "0000680"; // fator de vencimento
+  const valor = "0046174"; // valor formatado (ex: R$ 46,174)
+  const campoLivre = gerarCampoLivre(); // parte variável
+
+  const codigo = bancoMoeda + fatorVencimento + valor + campoLivre;
+  document.getElementById("codigo_barras").value = codigo;
+}
+
+function gerarCampoLivre() {
+  // Gera os últimos 32 dígitos como parte variável
+  let campo = "";
+  for (let i = 0; i < 32; i++) {
+    campo += Math.floor(Math.random() * 10).toString();
+  }
+  return campo;
+}
+
+
+    function gerarAutenticacao() {
+      const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      let codigo = "";
+      for (let i = 0; i < 14; i++) {
+        codigo += letras.charAt(Math.floor(Math.random() * letras.length));
+      }
+      document.getElementById("codigo_autenticacao").value = codigo;
+    }
+
+    async function gerarPDF() {
+      const { jsPDF } = window.jspdf;
+      const largura = 1625;
+      const altura = 2875;
+
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [largura, altura]
+      });
+
+      const img = new Image();
+      img.src = "./static/Base_compmercadopago1.png";
+
+      img.onload = () => {
+        doc.addImage(img, 'PNG', 0, 0, largura, altura);
+
+        const form = document.getElementById("formulario");
+        const dados = new FormData(form);
+        
+
+        doc.setFontSize(63);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`${dados.get("identificador")}`, 1207, 200);
+
+
+        doc.setFont("helvetica");
+        doc.setFontSize(100);
+        doc.setTextColor(0, 0, 0);
+
+        // Exemplo de posicionamento (ajuste conforme seu layout)
+        doc.text(`${dados.get("beneficiario")}`, 200, 450);
+        doc.setTextColor(0, 157, 226); // azul #009DE2
+        doc.setFontSize(105);
+        doc.text(`R$ ${dados.get("total_pago")}`, 645, 630);
+
+
+        doc.setFont("helvetica");
+        doc.setFontSize(46);
+        doc.setTextColor(0, 0, 0);
+         doc.text(`${dados.get("nome")}`, 123, 1700);
+        doc.text(`${dados.get("codigo_barras")}`,123, 1350);
+        doc.text(`${dados.get("beneficiario")}`, 123, 1522);
+
+
+
+        doc.setFont("helvetica");
+        doc.setFontSize(48);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`R$ ${dados.get("valor_original")}`, 1380, 866);
+        doc.text(`-R$ ${dados.get("desconto")}`, 1370, 925);
+        doc.text(`R$ ${dados.get("total_pago")}`, 1380, 1080);
+        
+        
+    // Função para mascarar CPF/CNPJ
+    function mascararCPFouCNPJ(valor) {
+      const limpo = valor.replace(/\D/g, ''); // remove pontos, traços, barras
+      const ultimos = limpo.slice(-6); // pega os últimos 6 dígitos
+      return `***${ultimos}***`;
+    }
+    
+    // Aplicar no PDF
+    doc.text(`${mascararCPFouCNPJ(dados.get("cpf_beneficiario"))}`, 835, 1522);
+    doc.text(`${mascararCPFouCNPJ(dados.get("cpf_pagador"))}`, 835, 1700);
+
+
+
+
+        doc.text(`${dados.get("codigo_autenticacao")}`, 123, 1875);
+        doc.text(`${dados.get("banco")}`, 835, 1880);
+        doc.text(`${dados.get("vencimento_boleto")}`, 123, 2036);
+        const nomeCompleto = dados.get("pagador_final");
+        const primeiroNome = nomeCompleto.split(" ")[0];
+        doc.text(`${primeiroNome}`, 835, 2050);
+
+        doc.text(`${dados.get("data_pagamento")}`, 123, 2215);
+
+        const pdfUrl = doc.output('bloburl');
+        window.open(pdfUrl, '_blank');
+      };
+
+      img.onerror = () => {
+        alert("Erro ao carregar a imagem. Verifique o caminho ou use Live Server.");
+      };
+    }
+  </script>
+
+  </body>
+</html>
